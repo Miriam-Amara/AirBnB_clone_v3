@@ -4,12 +4,17 @@
 This module contains Amenity class for the HBNB system.
 """
 
-from models.basemodel import BaseModel
+from sqlalchemy import String
+from sqlalchemy.orm import mapped_column, relationship
+
+from models.basemodel import BaseModel, Base
 
 
-class Amenity(BaseModel):
+class Amenity(BaseModel, Base):
     """
     Defines Amenity attributes and methods for the system.
     """
-
-    name: str = ""
+    __tablename__ = "amenities"
+    name = mapped_column(String(128), nullable=False)
+    from models.place import place_amenity
+    place_ammenities = relationship("Place", secondary=place_amenity)
