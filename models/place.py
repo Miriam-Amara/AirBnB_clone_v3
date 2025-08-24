@@ -4,22 +4,33 @@
 This module contains Place class for the HBNB system.
 """
 
-from models.basemodel import BaseModel
+from sqlalchemy import String, Integer, Float, ForeignKey, Table, Column
+from sqlalchemy.orm import mapped_column, relationship
+
+from models.basemodel import BaseModel, Base
 
 
-class Place(BaseModel):
+place_amenity = Table(
+    "place_amenity",
+    Base.metadata,
+    Column("place_id", String(60), ForeignKey("places.id"), primary_key=True, nullable=False),
+    Column("amenity_id", String(60), ForeignKey("amenities.id"), primary_key=True, nullable=False)
+)
+
+class Place(BaseModel, Base):
     """
     Defines Place attributes and Methods for the system.
     """
-
-    city_id: str = ""
-    user_id: str = ""
-    name: str = ""
-    description: str = ""
-    number_rooms: int = 0
-    number_bathrooms: int = 0
-    max_guest: int = 0
-    price_by_night: int = 0
-    latitude: float = 0.0
-    longitude: float = 0.0
-    amenity_ids: list[str] = []
+    __tablename__ = "places"
+    city_id = mapped_column(String(60), ForeignKey("cities.id"), nullable=False)
+    user_id = mapped_column(String(60), ForeignKey("users.id"), nullable= False)
+    name = mapped_column(String(128), nullable=False)
+    description = mapped_column(String(1024))
+    number_rooms = mapped_column(Integer, nullable=False, default=0)
+    number_bathrooms = mapped_column(Integer, nullable=False, default=0)
+    max_guest = mapped_column(Integer, nullable=False, default=0)
+    price_by_night = mapped_column(Integer, nullable=False, default=0)
+    latitude = mapped_column(Float)
+    longitude = mapped_column(Float)
+    reviews = relationship("Review", backref="place", cascade="all, delete-orphan")
+    amenities = relationship("Amenity", secondary=place_amenity, viewonly=False)
