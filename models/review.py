@@ -4,14 +4,17 @@
 This module contains Review class for the HBNB system.
 """
 
-from models.basemodel import BaseModel
+from sqlalchemy import String, ForeignKey
+from sqlalchemy.orm import mapped_column
+
+from models.basemodel import BaseModel, Base
 
 
-class Review(BaseModel):
+class Review(BaseModel, Base):
     """
     Defines Review attributes and methods for the system.
     """
-
-    place_id: str = ""
-    user_id: str = ""
-    text: str = ""
+    __tablename__ = "reviews"
+    place_id = mapped_column(String(60), ForeignKey("places.id"), nullable=False)
+    user_id = mapped_column(String(60), ForeignKey("users.id"), nullable=False)
+    text = mapped_column(String(1024), nullable=False)
