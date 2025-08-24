@@ -9,7 +9,6 @@ from cmd import Cmd
 from typing import Any, cast
 import ast
 import logging
-import shlex
 
 from models import storage
 from models.basemodel import BaseModel
@@ -23,7 +22,7 @@ from models.user import User
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format=" %(asctime)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(levelname)s - %(message)s",
     filename="console.log",
     force=True,
 )
@@ -118,9 +117,6 @@ Type anything and **Boom! Watch the magic unveil.
         else:
             args = class_name + " " + fragments[2][:-1].replace(',', '')
         logging.debug(f"default_command_args: {args}")
-        logging.debug(f"default_command_args: {method_name}")
-        logging.debug(f"default_command_args: {type(args)}")
-        logging.debug(f"default_command_args: {type(method_name)}")
         methods[method_name](args)
     
 
@@ -128,7 +124,7 @@ Type anything and **Boom! Watch the magic unveil.
         """
         Prints all string representation of all instances
         based or not on the class name.
-        Ex: (HBNB) all BaseModel or $ all.
+        Ex: (HBNB) all BaseModel or (HBNB) all.
         """
         logging.debug(f"all_command_args: {args}")
         class_name = ""
@@ -146,7 +142,8 @@ Type anything and **Boom! Watch the magic unveil.
         else:
             objects = [str(obj) for obj in all_objects.values()]
             print(objects)
-    
+
+
     def do_count(self, args: str):
         """
         Returns the count of each object in the storage.
@@ -166,26 +163,54 @@ Type anything and **Boom! Watch the magic unveil.
             if class_name in key:
                 sum += 1
         print(sum)
-            
 
 
-    def do_create(self, arg: str):
+    def do_create(self, args: str):
         """
         Creates a new instance of BaseModel,
         saves it (to the JSON file) and prints the id.
-        Ex: (HBNB) create BaseModel
+        Usage:
+            - create BaseModel
+            - create Place city_id="0001" user_id="0001" name="My_little_house"
+                number_rooms=4 number_bathrooms=2 max_guest=10 price_by_night=300
+                latitude=37.773972 longitude=-122.431297
         """
-        logging.debug(f"create_command_args: {arg}")
-        if not arg:
+        if not args:
             print("** class name missing **")
+            return
         
-        class_name: str = arg.split()[0].strip()
+        data = args.split()
+        class_name = data[0].strip()
         if class_name not in HBNBCommand.__classes:
             print("** class doesn't exist **")
-        else:
+            return
+        
+        if len(data) < 2:
             obj = HBNBCommand.__classes[class_name]()
             obj.save()
             print(obj.id)
+            return
+        
+        params = data[1:]
+        kwargs = {}
+        for param in params:
+            if "=" not in param:
+                continue
+            attr, value = param.split("=")
+            try:
+                value = ast.literal_eval(value)
+            except Exception:
+                return
+            if isinstance(value, str):
+                value = value.replace("_", " ")
+            kwargs[attr] = value
+        
+        try:
+            obj = HBNBCommand.__classes[class_name](**kwargs)
+            obj.save()
+            print(obj.id)
+        except Exception:
+            return
 
 
     def do_destroy(self, args: str):
@@ -237,7 +262,7 @@ Type anything and **Boom! Watch the magic unveil.
             print("** instance id missing **")
             return
 
-        obj_id = parts[1]
+        obj_id = parts[1].strip()
         all_objects = storage.all()
         key = f"{class_name}.{obj_id}"
         obj = all_objects.get(key)
@@ -289,22 +314,19 @@ Type anything and **Boom! Watch the magic unveil.
             obj.save()
             return
         
-        attr_parts = shlex.split(raw_attr_data)
+        attr_parts = raw_attr_data.split()
         if not attr_parts:
-            print(" ** attribute name missing **")
+            print("** attribute name missing **")
             return
         if len(attr_parts) == 1:
             print("** value missing **")
             return
         
         attr_name, attr_value = attr_parts[:2]
-        if attr_value.isdigit():
-            attr_value = int(attr_value)
-        else:
-            try:
-                attr_value = float(attr_value)
-            except ValueError:
-                pass
+        try:
+            attr_value = ast.literal_eval(repr(attr_value))
+        except Exception:
+            return
         setattr(obj, attr_name, attr_value)
         obj.save()
 
