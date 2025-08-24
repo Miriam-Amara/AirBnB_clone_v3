@@ -6,7 +6,7 @@ the HBNB system.
 """
 
 
-from typing import Any
+from typing import Any, Optional
 from dotenv import load_dotenv
 import json
 import os
@@ -40,17 +40,34 @@ class FileStorage:
         "User": User,
     }
 
-    def all(self):
+    def all(self, cls: Optional[str]=None) -> dict[str, Any]:
         """
-        Returns all the objects of HBNB system in storage.
+        Returns all the objects of HBNB system in storage or
+        all objects of a given class.
         """
-        return FileStorage.__objects
+        if cls and cls in self.__classes:
+            class_objects = {
+                cls_id: obj for cls_id, obj in self.__objects.items() if cls in cls_id
+                }
+            return class_objects
+        return self.__objects
+    
+    def delete(self, obj: Optional[BaseModel]=None) -> None:
+        """
+        Deletes the given object from storage.
+        """
+        if obj == None:
+            return
+        key = f"{obj.__class__.__name__}.{obj.id}"
+        if key in self.__objects:
+            self.__objects.pop(key, "Obj not found")
+
 
     def new(self, obj: BaseModel):
         """
         Sets in __objects the obj with key <obj classname>.id
         """
-        FileStorage.__objects[f"{obj.__class__.__name__}.{obj.id}"] = obj
+        self.__objects[f"{obj.__class__.__name__}.{obj.id}"] = obj
 
     def save(self):
         """
@@ -70,12 +87,12 @@ class FileStorage:
         """
         all_objects: dict[str, Any] = {}
         try:
-            with open(FileStorage.__file_path) as file_obj:
+            with open(self.__file_path) as file_obj:
                 all_objects = json.load(file_obj)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             pass
 
         for cls_id, obj_dict in all_objects.items():
             class_name = cls_id.split(".")[0]
-            obj: BaseModel = FileStorage.__classes[class_name](**obj_dict)
-            FileStorage.__objects[cls_id] = obj
+            obj: BaseModel = self.__classes[class_name](**obj_dict)
+            self.__objects[cls_id] = obj
