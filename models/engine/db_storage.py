@@ -9,7 +9,7 @@ the HBNB system.
 from typing import Any, Optional
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import sessionmaker, scoped_session
 import os
 
@@ -38,7 +38,6 @@ class DBStorage:
     __port = os.getenv("HBNB_POSTGRES_PORT")
     __db = os.getenv("HBNB_POSTGRES_DB")
     __classes: dict[str, Any] = {
-        "BaseModel": BaseModel,
         "Amenity": Amenity,
         "City": City,
         "Place": Place,
@@ -77,6 +76,25 @@ class DBStorage:
             key = f"{obj.__class__.__name__}.{obj.id}"
             objects[key] = obj.to_dict()
         return objects
+    
+    def count(self, cls: Optional[str]=None) -> dict[str, Any]:
+        """Returns count of objects of a given class or objects of all classes"""
+        assert self.__session is not None, "Session has not been initialized"
+
+        if cls in self.__classes:
+            cls_objects_count = self.__session.scalar(
+                select(func.count()).select_from(self.__classes[cls])
+            )
+            return {cls: cls_objects_count}
+        
+        all_objects_count: dict[str, Any] = {}
+        for cls_name in self.__classes:
+            cls_objects_count = self.__session.scalar(
+                select(func.count()).select_from(self.__classes[cls_name])
+            )
+            all_objects_count[cls_name] = cls_objects_count
+        return all_objects_count
+
        
     def delete(self, obj: Optional[BaseModel]=None) -> None:
         """
