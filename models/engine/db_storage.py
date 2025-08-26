@@ -105,7 +105,21 @@ class DBStorage:
         
         if obj:
             self.__session.delete(obj)
-      
+
+    def get(self, cls: str, id: str) -> Optional[BaseModel]:
+        """
+        Returns the object based on the class and its ID, or None if not found.
+        """
+        if cls not in self.__classes:
+            return
+        if not id or not isinstance(id, str): # type: ignore
+            return
+        
+        obj = self.__session.scalars(
+            select(self.__classes[cls]).where(self.__classes[cls].id == id)
+        ).one_or_none()
+        return obj
+       
     def new(self, obj: BaseModel) -> None:
         """
         Adds object to session.
