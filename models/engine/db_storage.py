@@ -49,7 +49,7 @@ class DBStorage:
     def __init__(self) -> None:
         self.__url = (f"postgresql+psycopg2://{self.__user}:{self.__password}"
                          f"@{self.__host}:{self.__port}/{self.__db}")
-        self.__engine = create_engine(self.__url, pool_pre_ping=True, echo=True)
+        self.__engine = create_engine(self.__url, pool_pre_ping=True, echo=False)
         
         if os.getenv("HBNB_ENV") == "test":
             Base.metadata.drop_all(bind=self.__engine)
@@ -95,6 +95,10 @@ class DBStorage:
             all_objects_count[cls_name] = cls_objects_count
         return all_objects_count
 
+    def close(self) -> None:
+        """Closes database session"""
+        assert self.__session is not None, "Session has not been initialized"
+        self.__session.close()
        
     def delete(self, obj: Optional[BaseModel]=None) -> None:
         """
@@ -115,6 +119,7 @@ class DBStorage:
         if not id or not isinstance(id, str): # type: ignore
             return
         
+        assert self.__session is not None, "Session has not initialized"
         obj = self.__session.scalars(
             select(self.__classes[cls]).where(self.__classes[cls].id == id)
         ).one_or_none()
