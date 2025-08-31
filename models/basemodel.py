@@ -54,7 +54,16 @@ class BaseModel:
         Returns a user friendly string representation
         of an object in the HBNB system.
         """
-        return f"[{self.__class__.__name__}]({self.id})({self.__dict__})"
+        obj_dict_copy = deepcopy(self.__dict__)
+        obj_dict_copy.pop("_sa_instance_state", None)
+        return f"[{self.__class__.__name__}]({self.id})({obj_dict_copy})"
+
+    def delete(self) -> None:
+        """
+        Deletes object from storage.
+        """
+        from models import storage
+        storage.delete(self)
 
     def save(self):
         """
@@ -76,29 +85,3 @@ class BaseModel:
         obj_dict["updated_at"] = self.updated_at.isoformat()
         obj_dict.pop("_sa_instance_state", None)
         return obj_dict
-    
-    def delete(self) -> None:
-        """
-        Deletes object from storage.
-        """
-        from models import storage
-        storage.delete(self)
-
-
-def main():
-    logging.debug("Start Program")
-    base = BaseModel()
-    base_kwargs = BaseModel(name="ALX")
-    base_dict = base.to_dict()
-    new_base = BaseModel(**base_dict)
-    logging.debug(f"base.__dict__: {base.__dict__}")
-    logging.debug(f"base_kwargs: {base_kwargs.__dict__}")
-    logging.debug(f"base.__str__: {base}")
-    logging.debug(f"base.to_dict(): {base_dict}")
-    logging.debug(f"base.__dict__: {base.__dict__}")
-    logging.debug(f"new_base.__dict__: {new_base.__dict__}")
-    logging.debug("End Program")
-
-
-if __name__ == "__main__":
-    main()
