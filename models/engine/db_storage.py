@@ -54,7 +54,7 @@ class DBStorage:
         if os.getenv("HBNB_ENV") == "test":
             Base.metadata.drop_all(bind=self.__engine)
 
-    def all(self, cls: Optional[str]=None) -> dict[str, str]:
+    def all(self, cls: Optional[str]=None) -> dict[str, str] | list[dict[str, Any]]:
         """
         Returns all the objects or objects of a given class from database.
         """
@@ -62,7 +62,7 @@ class DBStorage:
             raise ValueError("No session assigned")
         
         result = None
-        if cls and cls in self.__classes:
+        if cls in self.__classes:
             result = self.__session.scalars(select(self.__classes[cls]))
         else:
             for cls_name in self.__classes.values():
@@ -71,10 +71,9 @@ class DBStorage:
         if not result:
             raise ValueError("No object found")
         
-        objects: dict[str, str] = {}
+        objects: list[dict[str, Any]] = []
         for obj in result:
-            key = f"{obj.__class__.__name__}.{obj.id}"
-            objects[key] = obj.to_dict()
+            objects.append(obj.to_dict())
         return objects
     
     def count(self, cls: Optional[str]=None) -> dict[str, Any]:
