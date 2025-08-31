@@ -44,6 +44,9 @@ class BaseModel:
             kwargs["updated_at"] = datetime.fromisoformat(kwargs["updated_at"])
             self.__dict__.update(kwargs)
         else:
+            kwargs.pop("id", None)
+            kwargs.pop("created_at", None)
+            kwargs.pop("updated_at", None)
             self.id = str(uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
