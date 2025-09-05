@@ -14,19 +14,12 @@ from models import storage
 from models.city import City
 from models.state import State
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(filename)s - %(message)s",
-    filename="api/v1/views/views.log",
-    force=True
-)
 
-disable_logging: bool = False
-if disable_logging:
-    logging.disable(logging.CRITICAL)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
-@app_views.route("/states/<state_id>/cities", methods=["POST"])
+@app_views.route("/states/<state_id>/cities", strict_slashes=False, methods=["POST"])
 def create_city(state_id: str):
     """Creates a city and saves it to database."""
     state_obj = get_obj("State", state_id)
@@ -40,11 +33,11 @@ def create_city(state_id: str):
         city = City(**city_data)
         city.save()
     except Exception as e:
-        logging.error(f"{e}")
+        logger.error(f"{e}")
         abort(500, description="Unsuccessful")
     return city.to_dict(), 201
 
-@app_views.route("/states/<state_id>/cities")
+@app_views.route("/states/<state_id>/cities", strict_slashes=False)
 def get_state_cities(state_id: str):
     """Retrieves all the cities in a state."""
     state_obj = cast(State, get_obj("State", state_id))
@@ -52,7 +45,7 @@ def get_state_cities(state_id: str):
     state_cities: list[dict[str, Any]] = [city.to_dict() for city in state_obj.cities]
     return state_cities, 200
 
-@app_views.route("/cities/<city_id>", methods=["PUT"])
+@app_views.route("/cities/<city_id>", strict_slashes=False, methods=["PUT"])
 def update_city(city_id: str):
     """Updates a city in the database"""
     city_obj = get_obj("City", city_id)
@@ -68,11 +61,10 @@ def update_city(city_id: str):
     city_obj.save()
     return city_obj.to_dict(), 200
     
-@app_views.route("/cities/<city_id>", methods=["DELETE"])
+@app_views.route("/cities/<city_id>", strict_slashes=False, methods=["DELETE"])
 def delete_city(city_id: str):
     """Deletes a city from the database."""
     city_obj = get_obj("City", city_id)
     storage.delete(city_obj)
     storage.save()
     return jsonify({}), 200
-
