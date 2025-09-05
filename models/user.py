@@ -22,3 +22,19 @@ class User(BaseModel, Base):
     last_name = mapped_column(String(128), nullable=False)
     places = relationship("Place", backref="user", cascade="all, delete-orphan")
     reviews = relationship("Review", backref="user", cascade="all, delete-orphan")
+
+    @classmethod
+    def search(cls, email: str) -> BaseModel | None:
+        from models import storage
+        """
+        """
+        return storage.search_user_email(email)
+    
+    def is_valid_password(self, password: str) -> bool:
+        """
+        """
+        if self.password != password:
+            return False
+        return True
+        
+
