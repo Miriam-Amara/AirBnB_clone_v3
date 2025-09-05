@@ -16,7 +16,7 @@ from models.amenity import Amenity
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-@app_views.route("/amenities", methods=["POST"])
+@app_views.route("/amenities", strict_slashes=False, methods=["POST"])
 def create_amenity():
     """Creates amenity and saves it to database."""
     amenity_data = get_request_data()
@@ -33,18 +33,18 @@ def create_amenity():
     
     return amenity.to_dict(), 201
 
-@app_views.route("/amenities")
+@app_views.route("/amenities", strict_slashes=False)
 def all_amenities():
     """Retrieves the list of all amenities in database."""
     return storage.all("Amenity"), 200
 
-@app_views.route("/amenities/<amenity_id>")
+@app_views.route("/amenities/<amenity_id>", strict_slashes=False)
 def get_amenity(amenity_id: str):
     """Retrieves an amenity from the database."""
     amenity_obj = get_obj("Amenity", amenity_id)
     return amenity_obj.to_dict(), 200
 
-@app_views.route("/amenities/<amenity_id>", methods=["PUT"])
+@app_views.route("/amenities/<amenity_id>", strict_slashes=False, methods=["PUT"])
 def update_amenity(amenity_id: str):
     """Updates amenity in database."""
     amenity_obj = get_obj("Amenity", amenity_id)
@@ -59,7 +59,7 @@ def update_amenity(amenity_id: str):
     amenity_obj.save()
     return amenity_obj.to_dict(), 200
 
-@app_views.route("/amenities/<amenity_id>", methods=["DELETE"])
+@app_views.route("/amenities/<amenity_id>", strict_slashes=False, methods=["DELETE"])
 def delete_amenity(amenity_id: str):
     """Deletes amenity from database."""
     amenity_obj = get_obj("Amenity", amenity_id)
