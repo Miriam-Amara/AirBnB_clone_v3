@@ -46,7 +46,8 @@ def verify_auth():
         return
     if not auth.require_auth(
         request.path,
-        ["/api/v1/status/", "/api/v1/stats/", "/api/v1/login/"]
+        ["/api/v1/status/", "/api/v1/stats/",
+         "/api/v1/login/", "/api/v1/register/"]
     ):
         return
     if not auth.authorization_header(request):
