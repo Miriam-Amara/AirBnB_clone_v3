@@ -4,7 +4,7 @@
 
 """
 
-from flask import abort, jsonify
+from flask import abort
 from typing import cast
 import logging
 
@@ -30,9 +30,6 @@ def login():
         abort(400, description="Missing password")
 
     user_obj: User = cast(User, User.search(user_data["email"]))
-    logger.debug(f"{user_obj}")
-    logger.debug(f"from database: {user_obj.password}")
-    logger.debug(f"from request data: {user_data['password']}")
     if not user_obj:
         abort(404)
     
@@ -43,6 +40,11 @@ def login():
     if not is_valid_password:
         abort(400, description="Invalid password")
     
-    access_token, refresh_token = jwt_auth.encode_jwt_token(user_obj.id)
-    return jsonify(access_token, refresh_token), 200
+    access_token = jwt_auth.encode_jwt_token(user_obj.id)
+    return access_token, 200
 
+
+@app_views.route("/logout", strict_slashes=False, methods=["POST"])
+def logout():
+    """Logout user"""
+    return {"msg": "Logout successful"}
