@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-@app_views.route("/places/<place_id>/reviews", methods=["POST"])
+@app_views.route("/places/<place_id>/reviews", strict_slashes=False, methods=["POST"])
 def create_review(place_id: str):
     place_obj = get_obj("Place", place_id)
     review_data = get_request_data()
@@ -38,20 +38,20 @@ def create_review(place_id: str):
         abort(500, description="Unsuccessful")
     return review.to_dict(), 201
 
-@app_views.route("/places/<place_id>/reviews")
+@app_views.route("/places/<place_id>/reviews", strict_slashes=False)
 def all_reviews(place_id: str):
     """Retrieves all the reviews of a place from database."""
     place_obj = get_obj("Place", place_id)
     place_reviews: list[dict[str, Any]] = [review.to_dict() for review in place_obj.reviews] # type: ignore
     return place_reviews, 200
 
-@app_views.route("/reviews/<review_id>")
+@app_views.route("/reviews/<review_id>", strict_slashes=False)
 def get_review(review_id: str):
     """Retrieves a review from database."""
     review_obj = get_obj("Review", review_id)
     return review_obj.to_dict(), 200
 
-@app_views.route("/review/<review_id>", methods=["PUT"])
+@app_views.route("/review/<review_id>", strict_slashes=False, methods=["PUT"])
 def update_review(review_id: str):
     """Updates a review in the database."""
     review_obj = get_obj("Review", review_id)
@@ -67,7 +67,8 @@ def update_review(review_id: str):
         setattr(review_obj, attr, value)
     review_obj.save()
     return review_obj.to_dict(), 200
-@app_views.route("/reviews/<review_id>", methods=["DELETE"])
+
+@app_views.route("/reviews/<review_id>", strict_slashes=False, methods=["DELETE"])
 def delete_review(review_id: str):
     """Deletes a review from database."""
     review_obj = get_obj("Review", review_id)
