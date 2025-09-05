@@ -14,15 +14,8 @@ from sqlalchemy import String, DateTime
 import logging
 
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format=" %(asctime)s - %(levelname)s - %(message)s",
-    filename="models/models.log",
-)
-
-disable_logging: bool = False
-if disable_logging:
-    logging.disable(logging.CRITICAL)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class Base(DeclarativeBase):
     pass
@@ -59,6 +52,7 @@ class BaseModel:
         """
         obj_dict_copy = deepcopy(self.__dict__)
         obj_dict_copy.pop("_sa_instance_state", None)
+        obj_dict_copy.pop("password", None)
         return f"[{self.__class__.__name__}]({self.id})({obj_dict_copy})"
 
     def delete(self) -> None:
