@@ -13,18 +13,8 @@ from models import storage
 from models.amenity import Amenity
 
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(filename)s - %(message)s",
-    filename="api/v1/views/views.log",
-    force=True
-)
-
-disable_logging: bool = False
-if disable_logging:
-    logging.disable(logging.CRITICAL)
-
-
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 @app_views.route("/amenities", methods=["POST"])
 def create_amenity():
@@ -38,7 +28,7 @@ def create_amenity():
         amenity = Amenity(**amenity_data)
         amenity.save()
     except Exception as e:
-        logging.error(f"{e}")
+        logger.error(f"{e}")
         abort(500, description="Unsuccessful")
     
     return amenity.to_dict(), 201
