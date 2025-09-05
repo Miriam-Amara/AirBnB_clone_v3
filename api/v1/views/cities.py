@@ -5,14 +5,14 @@
 """
 
 from flask import abort, jsonify
-from typing import Any
+from typing import Any, cast
 import logging
 
 from api.v1.views import app_views
 from api.v1.views.utils import get_obj, get_request_data
 from models import storage
 from models.city import City
-
+from models.state import State
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -47,9 +47,9 @@ def create_city(state_id: str):
 @app_views.route("/states/<state_id>/cities")
 def get_state_cities(state_id: str):
     """Retrieves all the cities in a state."""
-    state_obj = get_obj("State", state_id)
+    state_obj = cast(State, get_obj("State", state_id))
 
-    state_cities: list[dict[str, Any]] = [city.to_dict() for city in state_obj.cities] # type: ignore
+    state_cities: list[dict[str, Any]] = [city.to_dict() for city in state_obj.cities]
     return state_cities, 200
 
 @app_views.route("/cities/<city_id>", methods=["PUT"])
