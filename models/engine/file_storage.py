@@ -52,6 +52,19 @@ class FileStorage:
             return class_objects
         return self.__objects
     
+    def close(self):
+        pass
+    
+    def count(self, cls: Optional[str]=None) -> dict[str, int]:
+        count = 0
+        if not isinstance(cls, str): # type: ignore
+            raise TypeError(f"cls: {cls} should be valid string")
+        for cls_id in self.__objects:
+            if cls in cls_id:
+                count += 1
+        return {cls: count}
+
+    
     def delete(self, obj: Optional[BaseModel]=None) -> None:
         """
         Deletes the given object from storage.
