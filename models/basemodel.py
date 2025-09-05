@@ -36,7 +36,7 @@ class BaseModel:
     updated_at = mapped_column(DateTime, nullable=False, default=datetime.now(), sort_order=-1)
 
 
-    def __init__(self, *args: tuple[Any, ...], **kwargs: Any):
+    def __init__(self, *args: tuple[Any, ...], **kwargs: Any) -> None:
         """Intializes instance attributes"""
         if "__class__" in kwargs:
             kwargs.pop("__class__")
@@ -52,7 +52,7 @@ class BaseModel:
             self.updated_at = datetime.now()
             self.__dict__.update(kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a user friendly string representation
         of an object in the HBNB system.
@@ -68,7 +68,7 @@ class BaseModel:
         from models import storage
         storage.delete(self)
 
-    def save(self):
+    def save(self) -> None:
         """
         Saves an object of the HBNB system to storage.
         """
@@ -77,7 +77,7 @@ class BaseModel:
         storage.new(self)
         storage.save()
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         """
         Returns a dictionary representation of an object in the
         HBNB system.
@@ -87,4 +87,5 @@ class BaseModel:
         obj_dict["created_at"] = self.created_at.isoformat()
         obj_dict["updated_at"] = self.updated_at.isoformat()
         obj_dict.pop("_sa_instance_state", None)
+        obj_dict.pop("password", None)
         return obj_dict
