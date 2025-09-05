@@ -123,6 +123,19 @@ class DBStorage:
             select(self.__classes[cls]).where(self.__classes[cls].id == id)
         ).one_or_none()
         return obj
+    
+    def search_user_email(self, email: str) -> Optional[User]:
+        """
+        Returns the user object if the email is found, or None if not found.
+        """
+        if not isinstance(email, str): # type: ignore
+            return
+        
+        assert self.__session is not None, "Session has not been initialized"
+        user_obj = self.__session.scalars(
+            select(User).where(User.email == email)
+        ).one_or_none()
+        return user_obj
        
     def new(self, obj: BaseModel) -> None:
         """
