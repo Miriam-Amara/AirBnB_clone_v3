@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-@app_views.route("/cities/<city_id>/places", methods=["POST"])
+@app_views.route("/cities/<city_id>/places", strict_slashes=False, methods=["POST"])
 def create_place(city_id: str):
     """Add a place to the database."""
     city_obj = get_obj("City", city_id)
@@ -43,14 +43,14 @@ def create_place(city_id: str):
     
     return place.to_dict(), 201
 
-@app_views.route("/cities/<city_id>/places")
+@app_views.route("/cities/<city_id>/places", strict_slashes=False)
 def all_places(city_id: str):
     """Retrieves all places in a city."""
     city_obj = cast(City, get_obj("City", city_id))
     places: list[dict[str, Any]] = [place.to_dict() for place in city_obj.places]
     return places, 200
 
-@app_views.route("/places_search", methods=["POST"])
+@app_views.route("/places_search", strict_slashes=False, methods=["POST"])
 def place_search():
     """
     Retrieves all Place objects depending of the JSON in the body of the request.
@@ -152,13 +152,13 @@ def place_search():
     return jsonify({}), 200
 
 
-@app_views.route("/places/<place_id>")
+@app_views.route("/places/<place_id>", strict_slashes=False)
 def get_place(place_id: str):
     """Retrieves a place from database."""
     place_obj = get_obj("Place", place_id)
     return place_obj.to_dict(), 200
 
-@app_views.route("/places/<place_id>", methods=["PUT"])
+@app_views.route("/places/<place_id>", strict_slashes=False, methods=["PUT"])
 def update_place(place_id: str):
     """Updates a place in the database."""
     place_obj = get_obj("Place", place_id)
@@ -175,7 +175,7 @@ def update_place(place_id: str):
     place_obj.save()
     return place_obj.to_dict(), 200
 
-@app_views.route("/places/<place_id>", methods=["DELETE"])
+@app_views.route("/places/<place_id>", strict_slashes=False, methods=["DELETE"])
 def delete_place(place_id: str):
     """Deletes a place from database."""
     place_obj = get_obj("Place", place_id)
